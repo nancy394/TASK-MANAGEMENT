@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template
+from flask import Flask, render_template,redirect
 from config import Config
 import db
 import sounds
@@ -33,6 +33,10 @@ def create_app(test_config=None):
     @app.errorhandler(400)
     def bad_request(e):
         return render_template("error.html", code=400, message="Bad request"), 400
+        
+    @app.route("/")
+    def index():
+        return redirect("/auth/login")
 
     return app
 
