@@ -34,10 +34,6 @@ def create_app(test_config=None):
     def bad_request(e):
         return render_template("error.html", code=400, message="Bad request"), 400
         
-    @app.route("/")
-    def index():
-        return redirect("/auth/login")
-
     return app
 
 
