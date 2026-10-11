@@ -1,0 +1,80 @@
+{% extends "base.html" %}{% block title %}Focus Timer{% endblock %}
+{% block heading %}Focus Timer{% endblock %}
+{% block content %}
+<section class="stats">
+  <div class="stat"><span>Focus today</span><strong>{{ (stats.today_sec // 60) }} min</strong></div>
+  <div class="stat"><span>Total focus</span><strong>{{ (stats.total_sec // 3600) }}h {{ (stats.total_sec % 3600) // 60 }}m</strong></div>
+  <div class="stat"><span>Sessions completed</span><strong>{{ stats.completed }}</strong></div>
+  <div class="stat"><span>Voice recordings</span><strong>{{ stats.recordings }}</strong></div>
+</section>
+
+<div class="grid-2">
+  <div class="card focus-card" id="focus" data-record-url="{{ url_for('focus.record') }}">
+    <div class="mode-tabs">
+      <button type="button" class="mode active" data-mode="focus" data-min="25">Focus</button>
+      <button type="button" class="mode" data-mode="short_break" data-min="5">Short break</button>
+      <button type="button" class="mode" data-mode="long_break" data-min="15">Long break</button>
+    </div>
+    <div class="ring-wrap">
+      <svg viewBox="0 0 120 120" class="ring"><circle cx="60" cy="60" r="54" class="ring-bg"/><circle cx="60" cy="60" r="54" class="ring-fg" id="ring"/></svg>
+      <div class="time" id="time">25:00</div>
+      <div class="rec-badge" id="recBadge" hidden>● REC <span id="recTime">0:00</span></div>
+    </div>
+    <div class="form focus-form">
+      <label>Minutes<input type="number" id="minutes" min="1" max="240" value="25"></label>
+      <label>Task<select id="task"><option value="">— No task —</option>
+        {% for t in tasks %}<option value="{{ t.id }}" {{ 'selected' if preselect == t.id }}>{{ t.title }}</option>{% endfor %}
+      </select></label>
+      <label>Note<input id="note" maxlength="500" placeholder="What are you working on?"></label>
+      <label class="check"><input type="checkbox" id="recordToggle"> Record voice note during session</label>
+    </div>
+    <div class="row-end center">
+      <button class="btn btn-primary" id="startBtn">▶ Start</button>
+      <button class="btn" id="pauseBtn" disabled>❚❚ Pause</button>
+      <button class="btn btn-danger" id="stopBtn" disabled>■ Stop &amp; save</button>
+    </div>
+    <p class="muted small center" id="focusMsg">Pick a mode and press Start. A sound plays when time is up.</p>
+  </div>
+
+  <div class="card">
+    <h3>Sound notifications</h3>
+    <p class="muted small">Every kind of message has its own sound. Click to preview.</p>
+    <label class="check"><input type="checkbox" id="soundOn"> Sounds on</label>
+    <label>Volume<input type="range" id="volume" min="0" max="1" step="0.05"></label>
+    <div class="sound-grid">
+      <button type="button" class="btn" data-preview="success">✔ Saved</button>
+      <button type="button" class="btn" data-preview="complete">🎉 Completed</button>
+      <button type="button" class="btn" data-preview="info">ℹ Info</button>
+      <button type="button" class="btn" data-preview="warning">⚠ Warning</button>
+      <button type="button" class="btn" data-preview="danger">✖ Error</button>
+      <button type="button" class="btn" data-preview="focus_start">▶ Focus start</button>
+      <button type="button" class="btn" data-preview="focus_end">⏰ Focus end</button>
+      <button type="button" class="btn" data-preview="break_end">☕ Break over</button>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Session history</h3>
+  {% if sessions %}
+  <table class="table">
+    <thead><tr><th>When</th><th>Type</th><th>Task</th><th>Time</th><th>Status</th><th>Note</th><th>Recording</th><th></th></tr></thead>
+    <tbody>
+    {% for s in sessions %}
+      <tr>
+        <td class="small">{{ s.created_at }}</td>
+        <td>{{ s.mode|label }}</td>
+        <td>{% if s.task_id %}<a href="{{ url_for('tasks.detail', tid=s.task_id) }}">{{ s.task_title }}</a>{% else %}<span class="muted">—</span>{% endif %}</td>
+        <td>{{ s.actual_seconds // 60 }}m {{ s.actual_seconds % 60 }}s / {{ s.planned_minutes }}m</td>
+        <td>{% if s.completed %}<span class="chip chip-ok">Completed</span>{% else %}<span class="chip">Stopped</span>{% endif %}</td>
+        <td class="small">{{ s.note }}</td>
+        <td>{% if s.recording %}<audio controls preload="none" src="{{ url_for('focus.recording', sid=s.id) }}"></audio>{% else %}<span class="muted">—</span>{% endif %}</td>
+        <td><form method="post" action="{{ url_for('focus.delete', sid=s.id) }}" onsubmit="return confirm('Delete this session?')"><button class="btn btn-danger btn-sm">Delete</button></form></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p class="muted">No sessions yet. Start your first focus session above.</p>{% endif %}
+</div>
+<script src="{{ url_for('static', filename='js/focus.js') }}"></script>
+{% endblock %}

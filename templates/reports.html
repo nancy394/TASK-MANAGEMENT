@@ -1,0 +1,21 @@
+{% extends "base.html" %}{% block title %}Reports{% endblock %}
+{% block heading %}Reports & Analytics{% endblock %}
+{% block content %}
+<div class="row-end mb"><a class="btn" href="{{ url_for('reports.export_csv') }}">⬇ Export CSV</a></div>
+<div class="grid-2">
+  <div class="card"><h3>By status</h3>
+    {% for r in by_status %}<div class="hbar"><span>{{ r.status|label }}</span><div class="bar"><div class="status-{{ r.status }}" style="width: {{ (r.n*100/total)|round|int }}%"></div></div><strong>{{ r.n }}</strong></div>{% else %}<p class="muted">No data.</p>{% endfor %}
+  </div>
+  <div class="card"><h3>By priority</h3>
+    {% for r in by_priority %}<div class="hbar"><span>{{ r.priority|label }}</span><div class="bar"><div class="prio-fill-{{ r.priority }}" style="width: {{ (r.n*100/total)|round|int }}%"></div></div><strong>{{ r.n }}</strong></div>{% else %}<p class="muted">No data.</p>{% endfor %}
+  </div>
+</div>
+<div class="card"><h3>Completed in the last 7 days</h3>
+  <div class="chart">{% for d, n in week %}<div class="col"><div class="colbar" style="height: {{ (n*100/max_week)|round|int }}%"></div><strong>{{ n }}</strong><span>{{ d }}</span></div>{% endfor %}</div>
+</div>
+<div class="card"><h3>Projects</h3>
+  <table class="table"><thead><tr><th>Project</th><th>Total</th><th>Done</th><th>Progress</th></tr></thead><tbody>
+  {% for p in by_project %}<tr><td>{{ p.name }}</td><td>{{ p.total }}</td><td>{{ p.done }}</td><td>{{ (p.done*100/p.total)|round|int if p.total else 0 }}%</td></tr>{% else %}<tr><td colspan="4" class="muted">No data.</td></tr>{% endfor %}
+  </tbody></table>
+</div>
+{% endblock %}

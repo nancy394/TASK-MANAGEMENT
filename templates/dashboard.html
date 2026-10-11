@@ -1,0 +1,37 @@
+{% extends "base.html" %}{% block title %}Dashboard{% endblock %}
+{% block heading %}Dashboard{% endblock %}
+{% block content %}
+<section class="stats">
+  <div class="stat"><span>Total tasks</span><strong>{{ stats.total or 0 }}</strong></div>
+  <div class="stat"><span>To do</span><strong>{{ stats.todo or 0 }}</strong></div>
+  <div class="stat"><span>In progress</span><strong>{{ stats.in_progress or 0 }}</strong></div>
+  <div class="stat"><span>Completed</span><strong>{{ stats.done or 0 }}</strong></div>
+  <div class="stat stat-warn"><span>Overdue</span><strong>{{ stats.overdue or 0 }}</strong></div>
+</section>
+<div class="card progress-card">
+  <div class="row-between"><h3>Overall completion</h3><strong>{{ pct }}%</strong></div>
+  <div class="bar"><div style="width: {{ pct }}%"></div></div>
+</div>
+<div class="grid-2">
+  <div class="card">
+    <div class="row-between"><h3>Upcoming deadlines</h3><a href="{{ url_for('tasks.list_tasks', sort='due') }}">View all</a></div>
+    {% for t in upcoming %}{% include "_task_row.html" %}{% else %}<p class="muted">No upcoming deadlines 🎉</p>{% endfor %}
+  </div>
+  <div class="card">
+    <h3>Recent activity</h3>
+    <ul class="activity">{% for a in activity %}<li><span>{{ a.message }}</span><time>{{ a.created_at[:16] }}</time></li>{% else %}<li class="muted">No activity yet.</li>{% endfor %}</ul>
+  </div>
+</div>
+<div class="card">
+  <div class="row-between"><h3>Projects</h3><a href="{{ url_for('projects.edit') }}">+ New project</a></div>
+  <div class="project-grid">
+  {% for p in projects %}
+    {% set done = p.done or 0 %}{% set pc = (done * 100 / p.total)|round|int if p.total else 0 %}
+    <a class="project-card" href="{{ url_for('projects.detail', pid=p.id) }}" style="--pc: {{ p.color }}">
+      <strong>{{ p.name }}</strong><span class="muted">{{ done }}/{{ p.total }} tasks</span>
+      <div class="bar"><div style="width: {{ pc }}%"></div></div>
+    </a>
+  {% else %}<p class="muted">No projects yet.</p>{% endfor %}
+  </div>
+</div>
+{% endblock %}

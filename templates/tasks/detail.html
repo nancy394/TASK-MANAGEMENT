@@ -1,0 +1,50 @@
+{% extends "base.html" %}{% block title %}{{ task.title }}{% endblock %}
+{% block heading %}{{ task.title }}{% endblock %}
+{% block content %}
+<div class="grid-main">
+  <div>
+    <div class="card">
+      <div class="row-between">
+        <div class="meta"><span class="badge status-badge-{{ task.status }}">{{ task.status|label }}</span><span class="badge prio-{{ task.priority }}">{{ task.priority|label }}</span></div>
+        <div class="row-end">
+          <a class="btn" href="{{ url_for('tasks.edit', tid=task.id) }}">Edit</a>
+          <form method="post" action="{{ url_for('tasks.delete', tid=task.id) }}" onsubmit="return confirm('Delete this task?')"><button class="btn btn-danger">Delete</button></form>
+        </div>
+      </div>
+      <p class="desc">{{ task.description or 'No description.' }}</p>
+      <div class="status-switch">
+        {% for s in ['todo','in_progress','done'] %}
+        <form method="post" action="{{ url_for('tasks.set_status', tid=task.id, status=s) }}"><button class="btn {{ 'btn-primary' if task.status==s else 'btn-ghost' }}">{{ s|label }}</button></form>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="card">
+      {% set done_n = subtasks|selectattr('done')|list|length %}
+      <h3>Checklist <span class="muted">{{ done_n }}/{{ subtasks|length }}</span></h3>
+      {% for s in subtasks %}
+      <div class="subtask">
+        <form method="post" action="{{ url_for('tasks.toggle_subtask', tid=task.id, sid=s.id) }}"><button class="check {{ 'on' if s.done }}">{{ '✓' if s.done else '' }}</button></form>
+        <span class="{{ 'done' if s.done }}">{{ s.title }}</span>
+        <form method="post" action="{{ url_for('tasks.delete_subtask', tid=task.id, sid=s.id) }}"><button class="link-x">×</button></form>
+      </div>
+      {% endfor %}
+      <form method="post" action="{{ url_for('tasks.add_subtask', tid=task.id) }}" class="inline-form"><input name="title" placeholder="Add checklist item…" required><button class="btn">Add</button></form>
+    </div>
+    <div class="card">
+      <h3>Comments</h3>
+      {% for c in comments %}<div class="comment"><div class="avatar sm">{{ c.username[0]|upper }}</div><div><strong>{{ c.username }}</strong> <time class="muted">{{ c.created_at[:16] }}</time><p>{{ c.body }}</p></div></div>{% else %}<p class="muted">No comments yet.</p>{% endfor %}
+      <form method="post" action="{{ url_for('tasks.add_comment', tid=task.id) }}" class="form"><textarea name="body" rows="2" placeholder="Write a comment…" required></textarea><div class="row-end"><button class="btn btn-primary">Post</button></div></form>
+    </div>
+  </div>
+  <aside class="card details">
+    <h3>Details</h3>
+    <dl>
+      <dt>Project</dt><dd>{% if task.project_id %}<a href="{{ url_for('projects.detail', pid=task.project_id) }}">{{ task.project_name }}</a>{% else %}—{% endif %}</dd>
+      <dt>Category</dt><dd>{{ task.category_name or '—' }}</dd>
+      <dt>Due date</dt><dd>{{ task.due_date or '—' }}</dd>
+      <dt>Created</dt><dd>{{ task.created_at[:16] }}</dd>
+      <dt>Completed</dt><dd>{{ task.completed_at[:16] if task.completed_at else '—' }}</dd>
+    </dl>
+  </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "base.html" %}{% block title %}Categories{% endblock %}
+{% block heading %}Categories{% endblock %}
+{% block content %}
+<div class="card narrow">
+  <form method="post" class="inline-form"><input name="name" placeholder="New category name" required><button class="btn btn-primary">Add</button></form>
+  {% for c in categories %}
+  <div class="list-row">
+    <a href="{{ url_for('tasks.list_tasks', category=c.id) }}">⌗ {{ c.name }}</a><span class="muted">{{ c.task_count }} task(s)</span>
+    <form method="post" action="{{ url_for('categories.delete', cid=c.id) }}" onsubmit="return confirm('Delete category?')"><button class="link-x">×</button></form>
+  </div>
+  {% else %}<p class="muted">No categories.</p>{% endfor %}
+</div>
+{% endblock %}

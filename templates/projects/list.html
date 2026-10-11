@@ -1,0 +1,15 @@
+{% extends "base.html" %}{% block title %}Projects{% endblock %}
+{% block heading %}Projects{% endblock %}
+{% block content %}
+<div class="row-end mb"><a class="btn btn-primary" href="{{ url_for('projects.edit') }}">+ New project</a></div>
+<div class="project-grid">
+{% for p in projects %}
+  {% set pc = (p.done * 100 / p.total)|round|int if p.total else 0 %}
+  <a class="card project-card" href="{{ url_for('projects.detail', pid=p.id) }}" style="--pc: {{ p.color }}">
+    <strong>{{ p.name }}</strong><p class="muted">{{ p.description or 'No description' }}</p>
+    <div class="row-between"><span class="muted">{{ p.done }}/{{ p.total }} done</span><span>{{ pc }}%</span></div>
+    <div class="bar"><div style="width: {{ pc }}%"></div></div>
+  </a>
+{% else %}<div class="card empty"><p>No projects yet.</p><a class="btn btn-primary" href="{{ url_for('projects.edit') }}">Create your first project</a></div>{% endfor %}
+</div>
+{% endblock %}

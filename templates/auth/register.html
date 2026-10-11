@@ -1,0 +1,15 @@
+{% extends "base.html" %}{% block title %}Register{% endblock %}
+{% block auth %}
+<div class="card auth-card">
+  <div class="brand center"><span class="logo">✓</span> TaskFlow</div>
+  <h2>Create your account</h2><p class="muted">Start organising tasks in minutes.</p>
+  <form method="post" class="form">
+    <label>Full name<input name="full_name"></label>
+    <label>Username *<input name="username" required></label>
+    <label>Email *<input type="email" name="email" required></label>
+    <label>Password * (min 6)<input type="password" name="password" minlength="6" required></label>
+    <button class="btn btn-primary btn-block">Register</button>
+  </form>
+  <p class="muted center">Already registered? <a href="{{ url_for('auth.login') }}">Log in</a></p>
+</div>
+{% endblock %}

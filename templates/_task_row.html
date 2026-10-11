@@ -1,0 +1,7 @@
+<a class="task-row" href="{{ url_for('tasks.detail', tid=t.id) }}">
+  <span class="dot status-{{ t.status }}"></span>
+  <span class="task-title {{ 'done' if t.status == 'done' }}">{{ t.title }}</span>
+  {% if t.project_name %}<span class="chip">{{ t.project_name }}</span>{% endif %}
+  <span class="badge prio-{{ t.priority }}">{{ t.priority|label }}</span>
+  <span class="due {{ 'overdue' if t.due_date and today and t.due_date < today and t.status != 'done' }}">{{ t.due_date or '—' }}</span>
+</a>

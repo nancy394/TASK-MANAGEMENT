@@ -1,0 +1,17 @@
+{% extends "base.html" %}{% block title %}Tasks{% endblock %}
+{% block heading %}Tasks{% endblock %}
+{% block content %}
+<form class="card filters">
+  <input name="q" value="{{ args.get('q','') }}" placeholder="Search…">
+  <select name="status"><option value="">All statuses</option>{% for s in statuses %}<option value="{{ s }}" {{ 'selected' if args.get('status')==s }}>{{ s|label }}</option>{% endfor %}</select>
+  <select name="priority"><option value="">All priorities</option>{% for p in priorities %}<option value="{{ p }}" {{ 'selected' if args.get('priority')==p }}>{{ p|label }}</option>{% endfor %}</select>
+  <select name="project"><option value="">All projects</option>{% for p in projects %}<option value="{{ p.id }}" {{ 'selected' if args.get('project')==p.id|string }}>{{ p.name }}</option>{% endfor %}</select>
+  <select name="category"><option value="">All categories</option>{% for c in categories %}<option value="{{ c.id }}" {{ 'selected' if args.get('category')==c.id|string }}>{{ c.name }}</option>{% endfor %}</select>
+  <select name="sort">{% for k,v in [('due','Due date'),('priority','Priority'),('newest','Newest'),('title','Title')] %}<option value="{{ k }}" {{ 'selected' if args.get('sort')==k }}>Sort: {{ v }}</option>{% endfor %}</select>
+  <button class="btn">Apply</button><a class="btn btn-ghost" href="{{ url_for('tasks.list_tasks') }}">Reset</a>
+</form>
+<div class="card">
+  <p class="muted">{{ tasks|length }} task(s)</p>
+  {% for t in tasks %}{% include "_task_row.html" %}{% else %}<div class="empty"><p>No tasks found.</p><a class="btn btn-primary" href="{{ url_for('tasks.edit') }}">Create a task</a></div>{% endfor %}
+</div>
+{% endblock %}

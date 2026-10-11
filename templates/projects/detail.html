@@ -1,0 +1,30 @@
+{% extends "base.html" %}{% block title %}{{ project.name }}{% endblock %}
+{% block heading %}{{ project.name }}{% endblock %}
+{% block content %}
+<div class="card row-between" style="--pc: {{ project.color }}">
+  <div><p class="muted">{{ project.description or 'No description' }}</p><span class="muted">{{ total }} task(s)</span></div>
+  <div class="row-end">
+    <a class="btn btn-primary" href="{{ url_for('tasks.edit', project=project.id) }}">+ Add task</a>
+    <a class="btn" href="{{ url_for('projects.edit', pid=project.id) }}">Edit</a>
+    <form method="post" action="{{ url_for('projects.delete', pid=project.id) }}" onsubmit="return confirm('Delete project? Tasks will be kept without a project.')"><button class="btn btn-danger">Delete</button></form>
+  </div>
+</div>
+<div class="board">
+{% for status, items in board.items() %}
+  <div class="column">
+    <h3><span class="dot status-{{ status }}"></span>{{ status|label }} <span class="muted">{{ items|length }}</span></h3>
+    {% for t in items %}
+    <div class="kanban-card">
+      <a href="{{ url_for('tasks.detail', tid=t.id) }}"><strong>{{ t.title }}</strong></a>
+      <div class="row-between"><span class="badge prio-{{ t.priority }}">{{ t.priority|label }}</span><span class="muted">{{ t.due_date or '' }}</span></div>
+      <div class="move">
+        {% for s in ['todo','in_progress','done'] if s != status %}
+        <form method="post" action="{{ url_for('tasks.set_status', tid=t.id, status=s) }}"><button class="btn btn-xs">→ {{ s|label }}</button></form>
+        {% endfor %}
+      </div>
+    </div>
+    {% else %}<p class="muted small">Nothing here.</p>{% endfor %}
+  </div>
+{% endfor %}
+</div>
+{% endblock %}
