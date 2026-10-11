@@ -13,7 +13,10 @@ def create_app(test_config=None):
         app.config.update(test_config)
     db.init_app(app)
     sounds.ensure_sounds(app.static_folder)
+   try:
     os.makedirs(app.config["RECORDINGS_DIR"], exist_ok=True)
+   except OSError:
+    pass
     if not app.config.get("TESTING"):
         push.start_reminder_scheduler(app)
     for module in (auth, dashboard, projects, tasks, categories, reports, profile, focus, push):
